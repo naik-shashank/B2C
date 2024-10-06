@@ -15,6 +15,7 @@ const newOrder = async (req, res) => {
   
   const createdAt=Date.now();
   const updatedAt=createdAt
+  const status="pending";
 
   // Generate a unique ID for the order
   const id = `${customerId}-${createdAt}`;
@@ -31,7 +32,8 @@ const newOrder = async (req, res) => {
       updatedAt: new Date(updatedAt), // Timestamp for order update
       outletId, // ID of the outlet
       customerId, // ID of the customer
-      deliveryPartnerId // ID of the delivery partner
+      deliveryPartnerId, // ID of the delivery partner
+      status
     });
 
     // 2. Fetch the customer by customerId

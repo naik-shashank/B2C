@@ -157,7 +157,15 @@ const customerInsights = async (req, res) => {
     res.status(200).json({
       customers,
       aggergation:{
-        ageGroup,
+        ageGroup:{
+          "<25":ageGroup[0],
+          "<35":ageGroup[1],
+          "<45":ageGroup[2],
+          "<60":ageGroup[3],
+          "60+":ageGroup[4],
+          "oth":ageGroup[5],
+
+        },
         totalCustomers,
         inactiveCust,
         custEnquiry:0,

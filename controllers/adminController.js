@@ -34,7 +34,6 @@ const newOutlet = async (req, res) => {
 
     const address=JSON.parse(location) || {}
 
-    
     await db.collection(outletCollection).doc(id).set({
       id,
       name,
@@ -46,7 +45,9 @@ const newOutlet = async (req, res) => {
       address,
       outletPartnerId,
       deleveryPartners:req.body.deleveryPartners || [],
-      img
+      img,
+      //my changes
+      totalSales:{E6:0,E12:0,E30:0}
     })
   
     res.status(200).json({ message: "Outlet created successfully",data:req.body })
@@ -58,6 +59,8 @@ catch (err){
     message:"failed to create outlet",
     err
   })
+  console.log(err);
+  
 }
 }
 
@@ -241,46 +244,11 @@ const customerInsights = async (req, res) => {
     newCust=newCust*100.0/totalCustomers;
     returningCust=returningCust*100.0/totalCustomers
 
-    
-    // Fetch customers ordered by totalOrders in descending order
-    const ordersSnapshot = await db.collection('Order').get();
-    const orders = ordersSnapshot.docs.map(doc => doc.data());
-
-    // Create a map to count orders by area
-    const areaCounts = {};
-
-    orders.forEach(order => {
-      const area = order.address?.area;  // Safely access address.area
-
-      if (area) {
-        if (!areaCounts[area]) {
-          areaCounts[area] = 0;
-        }
-        areaCounts[area] += 1;
-      }
-    });
-
-    // Calculate the total number of orders
-    const totalOrders = orders.length;
-
-    // Convert the areaCounts map to an array of [area, count] pairs
-    let areaArray = Object.entries(areaCounts);
-
-    // Sort the areas by the number of orders in descending order
-    areaArray.sort((a, b) => b[1] - a[1]);
-     for(let i=0;i<areaArray.length;i++)
-      areaArray[i][1]=areaArray[i][1]*100.0/totalOrders
-
-
-
 
     // Send the extracted data as a JSON response
     res.status(200).json({
       customers,
       aggergation:{
-        
-         areaArray,
-      
         ageGroup:{
           "<25":ageGroup[0],
           "<35":ageGroup[1],
@@ -458,11 +426,6 @@ const getOneOutlet = async (req, res) => {
     return res.status(500).json({ error: 'Failed to fetch data' });
   }
 };
-
-
-
-
-
 
 
 export { newOutlet,createOutletPartner,deleteOutletPartner, newDeliveryPartner, unlinkPartner, linkPartner ,customerInsights,deliveryInsights,getAllOutletsWithOrderAndPartners,getOneOutlet}

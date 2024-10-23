@@ -21,7 +21,7 @@ const newOrder = async (req, res) => {
   const id = `${customerId}-${createdAt}`;
 
   const db = getFirestore();
-  
+ 
   try {
     // 1. Create the new order in Firestore
     await db.collection(mainCollection).doc(id).set({
@@ -33,7 +33,7 @@ const newOrder = async (req, res) => {
       outletId, // ID of the outlet
       customerId, // ID of the customer
       deliveryPartnerId, // ID of the delivery partner
-      status
+      status,
     });
 
     // 2. Fetch the customer by customerId
@@ -52,7 +52,22 @@ const newOrder = async (req, res) => {
         totalOrders:currentOrders+1
       });
 
+    // 4. Changing total sale in Outlate 
+    const outletRef = db.collection("Outlets").doc(outletId); // Fetch outlet document using outletId
+    const outletDoc = await outletRef.get(); // Get the document snapshot
+
+    if (outletDoc.exists) {
+      const outletData = outletDoc.data(); // Get the document data
+      await outletRef.update({
+        totalSales:{
+          E6: outletData.totalSales.E6 + (products.E6 || 0),
+          E12: outletData.totalSales.E12 + (products.E12 || 0),
+          E30: outletData.totalSales.E30 + (products.E30 || 0),
+        }
+      });
+    }
       // Return success response
+
       return res.status(200).json({ message: "Order created and customer totalExpenditure updated" });
     } else {
       // 5. If customer does not exist, delete the created order
@@ -118,9 +133,5 @@ const getAllOrders = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 }
-
-
-
-
 
 export { newOrder,getAllOrders }

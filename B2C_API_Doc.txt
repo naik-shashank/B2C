@@ -38,6 +38,7 @@ Order API Endpoints
 1. Create a New Order
 URL: {{host}}/api/v1/order/order
 Method: POST
+
 Body(example): {
     "address": {
         "fullAddress": {
@@ -62,9 +63,48 @@ Body(example): {
     "customerId": "1111111113"
 }
 
+*Responce 1 (success): {
+    "status": "success",
+    "orderData": {
+        "address": {
+            "fullAddress": {
+                "flatNo": "101",
+                "area": "Downtown",
+                "city": "New York",
+                "state": "New York",
+                "zipCode": "10001",
+                "country": "USA"
+            },
+            "coordinates": {
+                "lat": 40.732,
+                "long": -74.01
+            }
+        },
+        "amount": 6600,
+        "products": {
+            "E6": 909,
+            "E12": 9,
+            "E30": 3
+        },
+        "createdAt": "2024-10-24T12:48:05.439Z",
+        "updatedAt": "2024-10-24T12:48:05.439Z",
+        "outletId": "OP_1",
+        "customerId": "1111111113",
+        "deleveryDistance": "2.446KM",
+        "status": "pending"
+    }
+}
+
+*Responce 2 (fail): {
+    "status": "fail",
+    "message": "No nearby outlets, we will soon expand here!!"
+}
+
 Description: 1. "address" must contain "coordinates".
              2. format and name of "fullAddress" is flexible- it can be changed or modified
              3. Other feilds can also be added in "address" but "coordinates" is compulsory
+
+
 -----------------------------------------------------------------
 
 2. Get Orders by Outlet and Customer ID

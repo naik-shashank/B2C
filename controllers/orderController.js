@@ -3,8 +3,8 @@ import { sendNotification } from "./outletController.js";
 
 const mainCollection = "Order";
 
-
 // Haversine formula to calculate distance between two coordinates
+
 function haversineDistance(coords1, coords2) {
   const toRad = (value) => (value * Math.PI) / 180;
 
@@ -26,72 +26,71 @@ function haversineDistance(coords1, coords2) {
   return R * c; // Distance in kilometers
 }
 
-
 const newOrder = async (req, res) => {
   const {
     address, // Contains address and coordinates
     amount, // Total amount of the order
     products, // Object containing quantities of products
-    // outletId, 
+    // outletId, // ID of the outlet
     customerId, // ID of the customer
+    deliveryPartnerId // ID of the delivery partner
   } = req.body;
   
   if(!address || !address.coordinates || !amount || !products || !customerId)
-     return res.status(400).json({status:"fail",message:"please enter all details of order with lat,long in address"})
-  
-  const db = getFirestore();
+    return res.status(400).json({status:"fail",message:"please enter all details of order with lat,long in address"})
 
- // check for nearest outlet
+ 
+
+  // check for nearest outlet
  const orderCoordinates = { lat: parseFloat(address.coordinates.lat), long: parseFloat(address.coordinates.long)}; // Input coordinates
-    let maxDistance = 3; // Maximum distance in kilometers
-    let distance=3
-    const outletsRef = db.collection('Outlets');
-    const snapshot = await outletsRef.get();
-    
-    let nearbyOutlet ={};
+ let maxDistance = 3; // Maximum distance in kilometers
+ let distance=3
+ const outletsRef = db.collection('Outlets');
+ const snapshot = await outletsRef.get();
+ 
+ let nearbyOutlet ={};
 
-    snapshot.forEach(doc => {
-      const outletData = doc.data();
-      const outletCoords = outletData.address.coordinates;
-      
-      distance = haversineDistance(orderCoordinates, {
-        lat: parseFloat(outletCoords.lat),
-        long: parseFloat(outletCoords.long)
-      });
-      
-      if (distance < maxDistance) {
-        maxDistance=distance
-        nearbyOutlet={
-          id:outletData.id || 'NA',
-          name:outletData.name || 'NA',
-          phNo:outletData.phNo || 'NA',
-          img:outletData.img || 'NA',
-          distance:distance.toFixed(2) + 'KM'
-        };
-      }
-    });
+ snapshot.forEach(doc => {
+   const outletData = doc.data();
+   const outletCoords = outletData.address.coordinates;
+   
+   distance = haversineDistance(orderCoordinates, {
+     lat: parseFloat(outletCoords.lat),
+     long: parseFloat(outletCoords.long)
+   });
+   
+   if (distance < maxDistance) {
+     maxDistance=distance
+     nearbyOutlet={
+       id:outletData.id || 'NA',
+       name:outletData.name || 'NA',
+       phNo:outletData.phNo || 'NA',
+       img:outletData.img || 'NA',
+       distance:distance.toFixed(2) + 'KM'
+     };
+   }
+ });
 
-    if (Object.keys(nearbyOutlet).length==0) {
-      return res.status(404).json({status:"fail",message:'No nearby outlets, we will soon expand here!!'});
-    }
+ if (Object.keys(nearbyOutlet).length==0) {
+   return res.status(404).json({status:"fail",message:'No nearby outlets, we will soon expand here!!'});
+ }
 
 
- // creatig order for nearest outlet
+  // creatig order for nearest outlet
   const outletId=nearbyOutlet.id
   const deleveryDistance=distance.toFixed(3) + "KM"
   const createdAt=Date.now();
   const updatedAt=createdAt
   const status="pending";
-
+  
   // Generate a unique ID for the order
   const id = `${customerId}-${createdAt}`;
 
-
   const db = getFirestore();
-
+ 
   try {
     // 1. Create the new order in Firestore
-    const orderData={
+    await db.collection(mainCollection).doc(id).set({
       address, // Address and coordinates
       amount, // Total amount of the order
       products, // Object with product quantities (E6, E12, E30)
@@ -102,8 +101,6 @@ const newOrder = async (req, res) => {
       deliveryPartnerId, // ID of the delivery partner
       status,
     });
-    }
-    await db.collection(mainCollection).doc(id).set(orderData);
 
     // 2. Fetch the customer by customerId
     const customerRef = db.collection("Customer").doc(customerId); // Fetch customer document using customer ID
@@ -137,10 +134,7 @@ const newOrder = async (req, res) => {
     }
       // Return success response
 
-      return res.status(200).json({ 
-        status:"success",
-        orderData
-      });
+      return res.status(200).json({ message: "Order created and customer totalExpenditure updated" });
     } else {
       // 5. If customer does not exist, delete the created order
       await db.collection(mainCollection).doc(id).delete();
@@ -206,6 +200,4 @@ const getAllOrders = async (req, res) => {
   }
 }
 
-
 export { newOrder,getAllOrders }
-

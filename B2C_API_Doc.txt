@@ -1,0 +1,372 @@
+Customer API Endpoints
+
+1. Create a New User
+URL: {{host}}/api/v1/customer/user
+Method: POST
+Body(example):
+      {
+  "phone": "1234567890", (REQUIRED)
+}
+
+Description: This endpoint is used to create a new customer draft. Use this when a user is freshly created, " can also send all other ATTRIBUTES but phone is compulsory". later on using update routes, customer details can be filled
+
+NOTE: this can be used once user sign-in for the first time whith his number 
+------------------------------------------------------
+2. Get User by ID
+URL: {{host}}/api/v1/customer/user/{phone}
+Method: GET
+Description: This endpoint retrieves a customer by their document ID/phone (example 1111111111). The API returns the customer's details including their name, phone number, email, addresses, and other relevant information.
+
+-------------------------------------------------------------
+
+3. update user by ID
+URL: {{host}}/api/v1/customer/user/916363894956
+Method: PATCH
+
+body{
+  name,age......etc
+  addresses: [{"fullAddress":{"flatNo":"101","area":"Downtown","city":"New York","state":"New York","zipCode":"10001","country":"USA"},"coordinates":{"lat":40.71,"long":-74.01}},{"fullAddress":{"flatNo":"202","area":"Uptown","city":"New York","state":"New York","zipCode":"10002","country":"USA"},"coordinates":{"lat":40.72,"long":-73.99}}]
+  removeAddr: 0
+}
+
+Description: use to update attributes. 'addresses' is array containing more than address. 'removeAddr' can contain index of the address to be removed from list
+___________________________________________________________________________________________
+
+
+Order API Endpoints
+
+1. Create a New Order
+URL: {{host}}/api/v1/order/order
+Method: POST
+Body(example): {
+    "address": {
+        "fullAddress": {
+            "flatNo": "101",
+            "area": "Downtown",
+            "city": "New York",
+            "state": "New York",
+            "zipCode": "10001",
+            "country": "USA"
+        },
+        "coordinates": {
+            "lat": 40.732,
+            "long": -74.01
+        }
+    },
+    "amount": 6600,
+    "products": {
+        "E6": 909,
+        "E12": 9,
+        "E30": 3
+    },
+    "customerId": "1111111113"
+}
+
+Description: 1. "address" must contain "coordinates".
+             2. format and name of "fullAddress" is flexible- it can be changed or modified
+             3. Other feilds can also be added in "address" but "coordinates" is compulsory
+-----------------------------------------------------------------
+
+2. Get Orders by Outlet and Customer ID
+URL: {{host}}/api/v1/order/order?outletId=OP_1&startDate=2024-09-23&endDate=2024-10-10&customerId=1111111112
+Method: GET
+Query Parameters:
+    outletId: OP_1 (ID of the outlet)
+    customerId: 1111111112 (ID of the customer)
+    startDate & startDate
+Description: This endpoint retrieves all orders for a specified outlet and customer. The query includes the outletId and customerId to filter the orders.
+
+
+___________________________________________________________________________________________________________________________________________________________________
+
+
+ADMIN api endpoint
+
+1.Customer Insights 
+  URL: {{host}}/api/v1/admin/customerInsights
+  Method: GET
+
+  Responce example: {
+    "customers": [
+        {
+            "name": "user_demo",
+            "phone": "916363894956",
+            "totalOrders": 36,
+            "totalExpenditure": 15726.99
+        },
+        {
+            "name": "shashankw",
+            "phone": "1111111112",
+            "totalOrders": 2,
+            "totalExpenditure": 700
+        },
+        {
+            "name": "John",
+            "phone": "1111111111",
+            "totalOrders": 1,
+            "totalExpenditure": 50
+        },
+        {
+            "name": "newUser 1111111114",
+            "phone": "1111111114",
+            "totalOrders": 0,
+            "totalExpenditure": 0
+        },
+        {
+            "name": "newUser 1111111113",
+            "phone": "1111111113",
+            "totalOrders": 0,
+            "totalExpenditure": 0
+        }
+    ],
+    "aggergation": {
+        "areaArray": [
+            [
+                "HSR Layout",
+                42.857142857142854
+            ],
+            [
+                "JP nagar",
+                14.285714285714286
+            ],
+            [
+                "shirali",
+                14.285714285714286
+            ],
+            [
+                "bhatkal",
+                14.285714285714286
+            ],
+            [
+                "AECS Layout D Block",
+                14.285714285714286
+            ]
+        ],
+        "ageGroup": {
+            "<25": 20,
+            "<35": 40,
+            "<45": 0,
+            "<60": 0,
+            "60+": 0,
+            "oth": 40
+        },
+        "totalCustomers": 5,
+        "inactiveCust": 40,
+        "custEnquiry": 0,
+        "newCust": 20,
+        "returningCust": 40,
+        "male": 60,
+        "female": 0,
+        "others": 40
+    }
+}
+-------------------------------------------------
+
+2.Delivery Insights
+  URL: {{host}}/api/v1/admin/deliveryInsights
+  Method: GET
+
+  Responce example:{
+    "totalDeliveries": 0,
+    "totalDrivers": 2,
+    "drivers": [
+        {
+            "id": "6666666666",
+            "name": "rohan2",
+            "password": "r@1223",
+            "ratings": 4.5,
+            "totalDeliveries": 0
+        },
+        {
+            "id": "6666666667",
+            "name": "rohan3",
+            "password": "r@1223",
+            "ratings": 4.5,
+            "totalDeliveries": 0
+        }.
+         .
+         .
+         . (all driver details)
+          
+    ]
+}
+
+------------------------------------
+
+3.Add Outlet
+ URL: {{host}}/api/v1/admin/addOutlet
+ Method: POST
+  example body : {
+        id(unique),phNo,name,
+        location :{"fullAddress":{"flatNo":"101","area":"Downtown","city":"New York","state":"New York","zipCode":"10001","country":"USA"},"coordinates":{"lat":40.71,"long":-74.01}},
+        outletPartnerId,
+
+        deleveryPartners[]:  id1 //array
+        deleveryPartners[]: id2
+                .
+                .
+                .
+        deleveryPartners[]: idn
+
+        "img" :{image file}
+ }
+
+
+---------------------------------------
+
+4.Add Outlet Partner
+ URL: {{host}}/api/v1/admin/addOutletPartner
+ Method: POST
+  example body : {
+        "firstName": "rohan3",
+        "lastName": "naik",
+        "aadharNo": "9999999993",
+        "password": "r@1223",
+        "phone": "6666666667"
+        "img" :{image file}
+ }
+
+-----------------------------------------
+
+5.Remove outletPartner
+ URL: {{host}}/api/v1/admin/removeOutletPartner/{phone}
+ Method: DELETE
+----------------------------------------
+
+6.All Outlet
+ URL: {{host}}/api/v1/admin/allOutlet
+ Method: GET
+
+ example Responce: {
+    "revenue": 2770,
+    "totalOrders": 8,
+    "totalOutlets": 2,
+    "totalPartners": 2,
+    "outlets": [
+        {
+            "id": "OP_1",
+            "name": "new1",
+            "area": "Downtown",
+            "outletPartnerId": "7777777777",
+            "contact": "8888888881"
+        },
+        {
+            "id": "OU_2",
+            "name": "new",
+            "area": "Downtown",
+            "outletPartnerId": "7777777777",
+            "contact": "8888888888"
+        }
+    ]
+}
+------------------------------------------------------
+
+7.specific Outlet Page
+ URL: {{host}}/api/v1/admin/oneOutlet/{id}
+ Method: GET
+
+ example Responce: {
+    "revenue": 2770,
+    "totalOrders": 8,
+    "totalDeleveryPartners": 2,
+    "outlet": {
+        "id": "OP_1",
+        "name": "new1",
+        "phNo": "8888888881",
+        "address": {
+            "fullAddress": {
+                "flatNo": "101",
+                "area": "Downtown",
+                "city": "New York",
+                "state": "New York",
+                "zipCode": "10001",
+                "country": "USA"
+            },
+            "coordinates": {
+                "lat": 40.71,
+                "long": -74.01
+            }
+        },
+        "outletPartnerId": "7777777777",
+        "deleveryPartners": [
+            "6666666666",
+            "6666666667"
+        ],
+        "img": "https://res.cloudinary.com/dfquxwwo3/image/upload/v1728730139/OutletB2C/1728730133788.png"
+    },
+    "outletPartner": {
+        "firstName": "partner",
+        "lastName": "a",
+        "aadharNo": "88888888888",
+        "password": "P@1",
+        "phone": "7777777777",
+        "img": "https://res.cloudinary.com/dfquxwwo3/image/upload/v1728728323/OutletB2C/1728728319359.png"
+    },
+    "deliveryPartners": [
+        {
+            "firstName": "rohan2",
+            "lastName": "naik",
+            "password": "r@1223",
+            "img": "https://res.cloudinary.com/dfquxwwo3/image/upload/v1728560589/deliveryPartnerB2C/1728560586857.png",
+            "phone": "6666666666",
+            "ratings": 4.5,
+            "DLNo": "9999999992",
+            "totalDeliveries": 0
+        },
+        {
+            "firstName": "rohan3",
+            "lastName": "naik",
+            "password": "r@1223",
+            "img": "https://res.cloudinary.com/dfquxwwo3/image/upload/v1728561559/deliveryPartnerB2C/1728561557028.png",
+            "phone": "6666666667",
+            "ratings": 4.5,
+            "DLNo": "9999999993",
+            "totalDeliveries": 0
+        }
+    ]
+}
+
+NOTE:  for 'Latest Orders' use the getOrder route whith this oultet 'id' in query string
+
+___________________________________________________________________________________________
+
+
+Delivery Driver api endpoint
+
+1.Create Partner
+ URL: {{host}}/api/v1/deliveryPartner/profile
+ Method: POST
+
+ example body : {
+   firstName: Raj
+   lastName: Kumar
+   fathersName: Ramesh Kumar
+   dob: 1992-03-15
+   phone: 9876543210
+   secondaryNumber:6666666667
+   bloodGroup: O+
+   city: Mumbai
+   address: 12 Carter Road, Bandra
+   languageKnown: hindi,english,marathi
+   DLNo: MH0123456789
+   aadharNo: 123412341234
+   panNo: AAAAA1234A
+   vehicleRegistrationNo: MH01AB1234
+   accHolderName: Raj Kumar
+   bankName: State Bank of India
+   accNo: 12345678901
+   branchName: Bandra West Branch
+   ifscCode: SBIN0000123
+   image: (Attach an image file)
+
+ }
+-------------------------------------------
+
+2.Delete delivery partner
+ URL: {{host}}/api/v1/deliveryPartner/profile/{phone}
+ Method: POST
+---------------------------------------------------------
+
+3.Get Partner by ID
+ URL: {{host}}//api/v1/deliveryPartner/profile/{phone}
+ Method: GET

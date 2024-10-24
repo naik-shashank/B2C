@@ -39,8 +39,6 @@ const newOrder = async (req, res) => {
   if(!address || !address.coordinates || !amount || !products || !customerId)
     return res.status(400).json({status:"fail",message:"please enter all details of order with lat,long in address"})
 
- 
-
   // check for nearest outlet
  const orderCoordinates = { lat: parseFloat(address.coordinates.lat), long: parseFloat(address.coordinates.long)}; // Input coordinates
  let maxDistance = 3; // Maximum distance in kilometers

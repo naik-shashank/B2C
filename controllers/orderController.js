@@ -118,6 +118,29 @@ const newOrder = async (req, res) => {
         totalOrders:currentOrders+1
       });
 
+
+
+      // 5. Changing total sale in Outlate 
+    const outletRef = db.collection("Outlets").doc(outletId); // Fetch outlet document using outletId
+    const outletDoc = await outletRef.get(); // Get the document snapshot
+    
+    if (outletDoc.exists) {
+      const outletData = outletDoc.data(); // Get the document data
+    
+      // Check if totalSales exists and has properties, if not, initialize them
+      const totalSales = outletData.totalSales || { E6: 0, E12: 0, E30: 0 };
+    
+      await outletRef.update({
+        totalSales: {
+          E6: (totalSales.E6 || 0) + (products.E6 || 0),
+          E12: (totalSales.E12 || 0) + (products.E12 || 0),
+          E30: (totalSales.E30 || 0) + (products.E30 || 0),
+        }
+      });
+    }
+
+
+
       // Return success response
       return res.status(200).json({ 
         status:"success",
@@ -130,6 +153,8 @@ const newOrder = async (req, res) => {
       // 6. Return an error message for customer not found
       return res.status(400).json({ message: 'Customer not found, order deleted' });
     }
+
+    
 
     // (Optional) Sending notifications (Uncomment if needed)
     // sendNotification(outletId, address.fullAddress, id);

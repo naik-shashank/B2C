@@ -71,6 +71,7 @@ const deliveryPartnerProfile = async (req, res) => {
 
   const img = req.file.path || '';
   const dataOfBirth=new Date(dob) || null
+  const approved=false;
   // Separate and structure the data
   const generalDetails = {
     firstName,
@@ -83,7 +84,7 @@ const deliveryPartnerProfile = async (req, res) => {
     city,
     address,
     languageKnown: languageKnown ? languageKnown.split(',') : [], // Split if sent as a string
-    
+    approved
   };
 
   const docDetails = {
@@ -162,10 +163,13 @@ const deleteProfile=async (req,res)=>{
     const db = getFirestore()
 
     // Reference to the Firestore document for the user
+    console.log(userId)
     const userRef = db.collection(mainCollection).doc(userId);
     const driverDoc = await userRef.get();
 
-
+    if (!driverDoc.exists) {
+      return res.status(404).send({ message: 'User not found' });
+    }
     await removeImg(driverDoc.data().img)
     await userRef.delete();
     

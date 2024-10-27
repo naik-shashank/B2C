@@ -327,10 +327,13 @@ const deliveryInsights = async (req,res)=>{
       drivers.push(
         { 
           id: doc.id,
-          name:doc.data().firstName,
+          name:doc.data().generalDetails.firstName,
           password: doc.data().password,
           ratings: doc.data().ratings,
-          totalDeliveries: doc.data().totalDeliveries
+          totalDeliveries: doc.data().totalDeliveries,
+          approved:doc.data().approved,
+          region:doc.data().generalDetails.city
+          
          });
     });
 
